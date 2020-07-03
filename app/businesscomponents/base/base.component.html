@@ -1,0 +1,66 @@
+<div>
+	<mat-card class="matCardAlign">
+		<mat-card-content>
+			<div fxLayout="row"  fxLayout.sm="column" fxLayout.xs="column" style="margin-top:15px;">
+				 <div fxFlex="45" fxLayout="column" style="margin-right:18px" >
+					<div fxLayout="row" fxLayoutGap="15px" fxLayout.md="row" fxLayout.sm="column" fxLayout.xs="column">
+						<mat-form-field fxFlex="85">
+							<input matInput type="text" #filterText [(ngModel)]="searchText" placeholder="Search Text"
+								 matTooltip="Enter Search Text">
+						</mat-form-field>
+						<div>
+							<button type="button" mat-raised-button color="primary" class="filterButtonClass Savebtn"
+								style="text-align:center;margin-top: 5px;">
+								<mat-icon>search</mat-icon>Search
+							</button>
+						</div>
+					</div>
+					<div class="scrollgrid-container mat-elevation-z8">
+						<table mat-table [dataSource]="dataSource" matSort matSortActive="tableName" #sort
+							matSortDirection="asc" [matSortDisableClear]="true">
+							<ng-container matColumnDef="tableName">
+								<th mat-header-cell *matHeaderCellDef fxLayoutAlign="start center" fxFlex="100"
+									mat-sort-header>Table Name</th>
+								<td mat-cell fxFlex="100" style="padding-top:15px;text-align: left;"
+									*matCellDef="let row" class="columnTextElipsis" [matTooltip]="row.tableName">
+									{{row.tableName}}</td>
+							</ng-container>
+
+              <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                                [checked]="selection.hasValue() && isAllSelected()"
+                                [indeterminate]="selection.hasValue() && !isAllSelected()" 
+                                fxLayoutAlign="center" style="padding-top: 15px;">
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null"
+                                [checked]="selection.isSelected(row)" fxLayoutAlign="center" style="padding-top: 15px;">
+                  </mat-checkbox>
+                </td>
+              </ng-container>
+              
+							<tr mat-header-row *matHeaderRowDef="tableColumns; sticky: true"></tr>
+							<tr mat-row  *matRowDef="let row; columns: tableColumns"
+								[style.background]="highlightedRows.indexOf(row) != -1 ? '#eaf4f9' : ''"></tr>
+						</table>
+						<div class="notFoundData" [hidden]="isTableHasData">
+						</div>
+					</div>
+        </div> 
+        <div>
+          <button type="button" (click)="onFormSubmit()" mat-raised-button color="primary" class="Savebtn"
+								style="text-align:center;margin-top: 5px;width: 200px;">
+								Generate Application
+					</button>
+        </div>
+			</div>
+		</mat-card-content>
+	</mat-card>
+</div>
+<div *ngIf="hideSpinner" class="spinnerDiv">
+	<div class="loader"></div>
+	<p class="spinnerLoadingText">{{spinnerText}}</p>
+</div>

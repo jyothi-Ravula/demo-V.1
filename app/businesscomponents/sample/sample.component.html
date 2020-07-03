@@ -1,0 +1,158 @@
+<div>
+	<mat-card class="matCardAlign">
+		<mat-card-content>
+			<div fxLayout="row"  fxLayout.sm="column" fxLayout.xs="column" style="margin-top:15px;">
+				 <div fxFlex="45" fxLayout="column" style="margin-right:18px" >
+					<!-- search fields -->
+					<div fxLayout="row" fxLayoutGap="15px" fxLayout.md="row" fxLayout.sm="column" fxLayout.xs="column">
+
+						<mat-form-field fxFlex="85">
+							<input matInput type="text" #filterText [(ngModel)]="searchText" placeholder="Search Text"
+								 matTooltip="Enter Search Text">
+						</mat-form-field>
+						<div>
+							<button type="button" mat-raised-button color="primary" class="filterButtonClass Savebtn"
+								style="text-align:center;margin-top: 5px;"
+								>
+								<mat-icon>search</mat-icon>Search
+							</button>
+						</div>
+					</div>
+
+					<div class="scrollgrid-container mat-elevation-z8">
+						<table mat-table [dataSource]="dataSource" matSort matSortActive="employeeName" #sort
+							matSortDirection="asc" [matSortDisableClear]="true">
+							<!-- table columns -->
+
+							<ng-container matColumnDef="employeeName">
+								<th mat-header-cell *matHeaderCellDef fxLayoutAlign="start center" fxFlex="40"
+									mat-sort-header>Employee Name</th>
+								<td mat-cell fxFlex="40" style="padding-top:15px;text-align: left;"
+									*matCellDef="let sampleObj" class="columnTextElipsis" [matTooltip]="sampleObj.employeeName">
+									{{sampleObj.employeeName}}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="notes">
+								<th mat-header-cell *matHeaderCellDef fxLayoutAlign="start center" fxFlex="30"
+									mat-sort-header>Notes</th>
+								<td mat-cell fxFlex="30" style="padding-top:15px;text-align: left;"
+									*matCellDef="let sampleObj" class="columnTextElipsis" [matTooltip]="sampleObj.notes">
+									{{sampleObj.notes}}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="image">
+								<th mat-header-cell *matHeaderCellDef style="text-align:left;"
+									fxLayoutAlign="start center" fxFlex="20">Photo</th>
+
+								<td mat-cell *matCellDef="let sampleObj"
+									style="text-align:left;" fxFlex="20">
+										<img [src]="sampleObj.image" fxFlex="60">	
+									
+								</td>
+							</ng-container>
+
+							<!-- Delete  buttons start -->
+							<ng-container matColumnDef="delete">
+								<th mat-header-cell fxLayoutAlign="start center" *matHeaderCellDef > Delete </th>
+								<td mat-cell *matCellDef="let sampleObj">
+									<button mat-icon-button color="warn" (click)="deleteSample(sampleObj.id)">
+										<mat-icon class="mat-18">delete</mat-icon>
+									</button>
+								</td>
+							</ng-container>
+							<!-- Delete / Update buttons End -->
+
+							<tr mat-header-row *matHeaderRowDef="tableColumns; sticky: true"></tr>
+							<tr mat-row (click)="selectRow(sampleObj)" *matRowDef="let sampleObj; columns: tableColumns"
+								[style.background]="highlightedRows.indexOf(sampleObj) != -1 ? '#eaf4f9' : ''"></tr>
+						</table>
+						<div class="notFoundData" [hidden]="isTableHasData">
+							
+						</div>
+					</div>
+				</div> 
+				<div fxFlex="30" fxLayout="column" fxLayout.sm="column" fxLayout.xs="column" style="margin-left:15px;" >
+					<mat-card style="margin-top:57px;height:250px;">
+						<mat-card-header>
+							<p style="margin-top:5px;">Sample Information</p>
+						</mat-card-header>
+						<mat-card-content>
+							<!-- form fields -->
+							<form [formGroup]="sampleForm" autocomplete="off" novalidate (ngSubmit)="onFormSubmit()"
+								#f="ngForm">
+								<div fxLayout="column" fxLayout.sm="column" fxLayout.xs="column"
+									style="margin-left: 4px;">
+			
+									<!-- <mat-form-field>
+										<input matInput #empName formControlName="employeeName" matTooltip="Enter Employee Name"
+											maxlength="50" matInput placeholder="Employee Name" 
+											[errorStateMatcher]="errorMatcher"  required>
+										 <mat-error *ngIf="hasError('employeeName', 'required')">Employee Name required.</mat-error>
+									  </mat-form-field> 
+									 -->
+									  <mat-form-field>
+										<input type="text" #empName placeholder="Employee Name" aria-label="Assignee" matInput 
+										formControlName="employeeName" [matAutocomplete]="auto">
+										<mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+										  <mat-option *ngFor="let option of employees | async" [value]="option">
+											{{option.firstname}}
+										  </mat-option>
+										</mat-autocomplete>
+									</mat-form-field>
+						 
+
+								<mat-form-field>
+                  <textarea matInput formControlName="notes"  rows = "1" matTooltip="Enter Notes"
+                    maxlength="50" matInput placeholder="Notes" (input)="isChange()"
+                    [errorStateMatcher]="errorMatcher" required></textarea>
+                  <mat-error *ngIf="hasError('notes', 'required')">Notes required.
+                  </mat-error>
+                  <mat-error *ngIf="hasError('notes', 'space')">{{SpaceMessage}}</mat-error>
+								</mat-form-field>
+                <div>
+                  <button type="button" mat-stroked-button color="accent"  [matMenuTriggerFor]="menu1">Upload Photo</button>
+                    <mat-menu #menu1="matMenu"  >
+                    <input #file type="file" [hidden]="true" accept="image/*" (change)="selectedFile($event)">
+                    <button mat-button  #upload class="hoverColor" (click)="file.click()"><mat-icon>photo_libray</mat-icon>Upload Photo</button><br>
+                    <button mat-button  class="hoverColor" (click)="captureImageFromCam()"><mat-icon>photo_camera</mat-icon>Take Photo</button>
+                  </mat-menu>
+                </div>
+						<div fxLayout="row" fxLayoutGap="15px"
+							fxLayoutAlign="center center"  style="margin-top: 15px;">
+							<button type="submit" mat-raised-button class="filterButtonClass Savebtn"
+								color="primary" [disabled]="!(sampleForm.valid)">
+								<mat-icon>save</mat-icon> Save
+							</button>
+							<button type="button" mat-raised-button class="filterButtonClass"
+								(click)="resetForm()">
+								<mat-icon>clear_all</mat-icon>Reset
+							</button>
+						</div>
+						<button type="button" mat-raised-button class="" style="float: left; width: 50%; margin-top:30px"
+								(click)="createWebApi()">
+								<mat-icon>insert_drive_file</mat-icon>Generate Api
+							</button>
+
+
+						<button type="button" mat-raised-button class="" style="float: left; width: 50%; margin-top:30px"
+							(click)="createController()">
+							<mat-icon>insert_drive_file</mat-icon>Generate Controller
+						</button>
+
+
+
+					</div>
+				</form>
+				
+			</mat-card-content>
+		</mat-card>
+		</div>
+				<div  fxLayoutAlign="center" style="margin-top:57px;height: 250px;width: 220px;overflow-y: auto;overflow-x: auto;">
+					<img [src]="fileContent" style="max-width:100%;height:auto;border-radius: 5%;" > 
+		 		</div>
+			</div>
+			
+	
+		</mat-card-content>
+	</mat-card>
+</div>

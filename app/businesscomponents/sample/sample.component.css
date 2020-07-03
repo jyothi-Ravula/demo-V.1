@@ -1,0 +1,11 @@
+@import "../../././shared/Panel.css";
+@import "../../././shared/Common.css";
+@import "../../././shared/gridStyle.css";
+
+.hoverColor:hover{
+    background-color:#31829b;
+}
+
+.hoverColor{
+    color:black;
+}
